@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Substituição</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #d1d5db;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 1px solid #9ca3af;
+    }
+
+    h1 {
+      text-align: center;
+      color: #166534;
+      margin-bottom: 10px;
+    }
+
+    .descricao {
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+
+    .formulario {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    input,
+    select {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #9ca3af;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #15803d;
+    }
+
+    .botoes {
+      margin-top: 25px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .salvar {
+      background: #166534;
+      color: white;
+    }
+
+    .salvar:hover {
+      background: #14532d;
+    }
+
+    .limpar {
+      background: #9ca3af;
+      color: black;
+    }
+
+    .preview {
+      margin-top: 30px;
+      background: #f3f4f6;
+      border: 1px solid #bbf7d0;
+      border-radius: 20px;
+      padding: 20px;
+      white-space: pre-line;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Controle de Substituição de Vigilantes</h1>
+
+    <p class="descricao">
+      Registro de movimentação, substituição e transferência de vigilantes.
+    </p>
+
+    <div class="formulario">
+      <div class="campo">
+        <label>Nome do Vigilante</label>
+        <input type="text" id="vigilante" />
+      </div>
+
+      <div class="campo">
+        <label>Empresa do Vigilante</label>
+        <input type="text" id="empresaVigilante" />
+      </div>
+
+      <div class="campo">
+        <label>Escala</label>
+        <input type="text" id="escala" />
+      </div>
+
+      <div class="campo">
+        <label>Nome do Posto</label>
+        <input type="text" id="posto" />
+      </div>
+
+      <div class="campo">
+        <label>Horário</label>
+        <input type="text" id="horario" />
+      </div>
+
+      <div class="campo">
+        <label>Turno</label>
+        <select id="turno">
+          <option value="">Selecione</option>
+          <option>Diurno</option>
+          <option>Noturno</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Vai substituir alguém?</label>
+        <select id="substitui">
+          <option value="">Selecione</option>
+          <option>Sim</option>
+          <option>Não</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Quem será substituído</label>
+        <input type="text" id="substituido" />
+      </div>
+
+      <div class="campo">
+        <label>Empresa do Vigilante Substituído</label>
+        <input type="text" id="empresaSubstituido" />
+      </div>
+
+      <div class="campo">
+        <label>Desde quando</label>
+        <input type="date" id="desde" />
+      </div>
+
+      <div class="campo">
+        <label>Novo Posto do Vigilante Substituído</label>
+        <input type="text" id="novoPosto" />
+      </div>
+
+      <div class="campo">
+        <label>Data da Transferência</label>
+        <input type="date" id="transferencia" />
+      </div>
+    </div>
+
+    <div class="botoes">
+      <button class="salvar" onclick="enviarWhatsapp()">
+        Salvar e Enviar no WhatsApp
+      </button>
+
+      <button class="limpar" onclick="location.reload()">
+        Limpar Campos
+      </button>
+    </div>
+
+    <div class="preview" id="preview"></div>
+  </div>
+
+  <script>
+    const campos = document.querySelectorAll('input, select')
+
+    campos.forEach(campo => {
+      campo.addEventListener('input', atualizarPreview)
+    })
+
+    function pegar(id) {
+      return document.getElementById(id).value
+    }
+
+    function gerarMensagem() {
+      return `🚨 NOVA SUBSTITUIÇÃO 🚨
+
+👤 Vigilante: ${pegar('vigilante')}
+🏢 Empresa: ${pegar('empresaVigilante')}
+📋 Escala: ${pegar('escala')}
+📍 Posto: ${pegar('posto')}
+🕒 Horário: ${pegar('horario')}
+🌙 Turno: ${pegar('turno')}
+
+🔄 Vai substituir alguém? ${pegar('substitui')}
+👥 Substituindo: ${pegar('substituido')}
+🏢 Empresa do substituído: ${pegar('empresaSubstituido')}
+📅 Desde: ${pegar('desde')}
+
+📌 Novo posto do substituído: ${pegar('novoPosto')}
+🚚 Data da transferência: ${pegar('transferencia')}`
+    }
+
+    function atualizarPreview() {
+      document.getElementById('preview').innerText = gerarMensagem()
+    }
+
+    function enviarWhatsapp() {
+      const mensagem = gerarMensagem()
+
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
+        '_blank'
+      )
+    }
+
+    atualizarPreview()
+  </script>
+
+</body>
+</html>
