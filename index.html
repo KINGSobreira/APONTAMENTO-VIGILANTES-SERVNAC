@@ -257,7 +257,8 @@
     campos.forEach(campo => {
       campo.addEventListener('input', () => {
         controlarSubstituicao()
-        atualizarPreview()
+        controlarSubstituicao()
+    atualizarPreview()
       })
     })
 
@@ -294,8 +295,7 @@
 🚚 Data da transferência: ${pegar('transferencia')}`
     }
 
-    function controlarSubstituicao()
-    atualizarPreview() {
+    function atualizarPreview() {
       document.getElementById('preview').innerText = gerarMensagem()
     }
 
