@@ -156,7 +156,13 @@
 
       <div class="campo">
         <label>Empresa do Vigilante</label>
-        <input type="text" id="empresaVigilante" />
+        <select id="empresaVigilante">
+          <option value="">Selecione</option>
+          <option>SERVNAC 01</option>
+          <option>SERVNAC SP</option>
+          <option>SERVNAC RN</option>
+          <option>VERDE SEGURANÇA</option>
+        </select>
       </div>
 
       <div class="campo">
@@ -192,35 +198,44 @@
         </select>
       </div>
 
-      <div class="campo">
+      <div class="campo campos-substituicao">
         <label>Quem será substituído</label>
         <input type="text" id="substituido" />
       </div>
 
-      <div class="campo">
+      <div class="campo campos-substituicao">
         <label>Empresa do Vigilante Substituído</label>
-        <input type="text" id="empresaSubstituido" />
+        <select id="empresaSubstituido">
+          <option value="">Selecione</option>
+          <option>SERVNAC 01</option>
+          <option>SERVNAC SP</option>
+          <option>SERVNAC RN</option>
+          <option>VERDE SEGURANÇA</option>
+        </select>
       </div>
 
-      <div class="campo">
+      <div class="campo campos-substituicao">
         <label>Desde quando</label>
         <input type="date" id="desde" />
       </div>
 
-      <div class="campo">
+      <div class="campo campos-substituicao">
         <label>Novo Posto do Vigilante Substituído</label>
         <input type="text" id="novoPosto" />
       </div>
 
-      <div class="campo">
+      
+
+      <div class="campo campos-substituicao">
+        <label>Data da Transferência</label>
+        <input type="date" id="transferencia" />
+      </div>
+
+      <div class="campo campos-substituicao" style="margin-top: 10px;">
         <label>Motivo</label>
         <input type="text" id="motivo" placeholder="Informe o motivo da transferência" />
       </div>
 
-      <div class="campo">
-        <label>Data da Transferência</label>
-        <input type="date" id="transferencia" />
-      </div>
     </div>
 
     <div class="botoes">
@@ -240,8 +255,20 @@
     const campos = document.querySelectorAll('input, select')
 
     campos.forEach(campo => {
-      campo.addEventListener('input', atualizarPreview)
+      campo.addEventListener('input', () => {
+        controlarSubstituicao()
+        atualizarPreview()
+      })
     })
+
+    function controlarSubstituicao() {
+      const substitui = document.getElementById('substitui').value
+      const campos = document.querySelectorAll('.campos-substituicao')
+
+      campos.forEach(campo => {
+        campo.style.display = substitui === 'Não' ? 'none' : 'flex'
+      })
+    }
 
     function pegar(id) {
       return document.getElementById(id).value
@@ -267,7 +294,8 @@
 🚚 Data da transferência: ${pegar('transferencia')}`
     }
 
-    function atualizarPreview() {
+    function controlarSubstituicao()
+    atualizarPreview() {
       document.getElementById('preview').innerText = gerarMensagem()
     }
 
