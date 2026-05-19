@@ -1,61 +1,61 @@
 <script>
-const campos = document.querySelectorAll('input, select')
+  const campos = document.querySelectorAll('input, select')
 
-campos.forEach(campo => {
-  campo.addEventListener('input', atualizarSistema)
-  campo.addEventListener('change', atualizarSistema)
-})
-
-function atualizarSistema() {
-  controlarSubstituicao()
-  validarFormulario()
-  atualizarPreview()
-}
-
-function controlarSubstituicao() {
-  const substitui = pegar('substitui')
-  const camposSubstituicao = document.querySelectorAll('.campos-substituicao')
-
-  camposSubstituicao.forEach(campo => {
-    campo.style.display =
-      substitui === 'Não' ? 'none' : 'flex'
+  campos.forEach((campo) => {
+    campo.addEventListener('input', atualizarSistema)
+    campo.addEventListener('change', atualizarSistema)
   })
-}
 
-function validarFormulario() {
-  const obrigatorios = [
-    'vigilante',
-    'empresaVigilante',
-    'escala',
-    'posto',
-    'horario',
-    'turno',
-    'transferencia',
-    'substitui'
-  ]
-
-  if (pegar('substitui') === 'Sim') {
-    obrigatorios.push(
-      'substituido',
-      'empresaSubstituido',
-      'desde',
-      'novoPosto',
-      'motivo'
-    )
+  function pegar(id) {
+    return document.getElementById(id).value
   }
 
-  const completo = obrigatorios.every(id => pegar(id))
+  function atualizarSistema() {
+    controlarSubstituicao()
+    validarFormulario()
+    atualizarPreview()
+  }
 
-  document.getElementById('botaoPDF').style.display =
-    completo ? 'inline-block' : 'none'
-}
+  function controlarSubstituicao() {
+    const substitui = pegar('substitui')
+    const camposSubstituicao = document.querySelectorAll('.campos-substituicao')
 
-function pegar(id) {
-  return document.getElementById(id).value
-}
+    camposSubstituicao.forEach((campo) => {
+      campo.style.display =
+        substitui === 'Não' ? 'none' : 'flex'
+    })
+  }
 
-function gerarMensagem() {
-  return `🚨 NOVA SUBSTITUIÇÃO 🚨
+  function validarFormulario() {
+    const obrigatorios = [
+      'vigilante',
+      'empresaVigilante',
+      'escala',
+      'posto',
+      'horario',
+      'turno',
+      'transferencia',
+      'substitui'
+    ]
+
+    if (pegar('substitui') === 'Sim') {
+      obrigatorios.push(
+        'substituido',
+        'empresaSubstituido',
+        'desde',
+        'novoPosto',
+        'motivo'
+      )
+    }
+
+    const completo = obrigatorios.every((campo) => pegar(campo))
+
+    document.getElementById('botaoPDF').style.display =
+      completo ? 'inline-block' : 'none'
+  }
+
+  function gerarMensagem() {
+    return `🚨 NOVA SUBSTITUIÇÃO 🚨
 
 👤 Vigilante: ${pegar('vigilante')}
 🏢 Empresa: ${pegar('empresaVigilante')}
@@ -75,95 +75,100 @@ function gerarMensagem() {
 
 🔗 Para realizar uma nova transferência, acesse o link:
 https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/`
-}
-
-function atualizarPreview() {
-  document.getElementById('preview').innerText =
-    gerarMensagem()
-}
-
-function baixarPDF() {
-  const { jsPDF } = window.jspdf
-  const doc = new jsPDF()
-
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(18)
-  doc.text('REGISTRO DE TRANSFERÊNCIA DE VIGILANTES', 20, 20)
-
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(12)
-
-  const linhas = [
-    `Vigilante: ${pegar('vigilante')}`,
-    `Empresa: ${pegar('empresaVigilante')}`,
-    `Escala: ${pegar('escala')}`,
-    `Posto: ${pegar('posto')}`,
-    `Horário: ${pegar('horario')}`,
-    `Turno: ${pegar('turno')}`,
-    `Data da transferência: ${pegar('transferencia')}`,
-    '',
-    `Vai substituir alguém?: ${pegar('substitui')}`
-  ]
-
-  if (pegar('substitui') === 'Sim') {
-    linhas.push(
-      `Substituindo: ${pegar('substituido')}`,
-      `Empresa do substituído: ${pegar('empresaSubstituido')}`,
-      `Desde: ${pegar('desde')}`,
-      `Novo posto: ${pegar('novoPosto')}`,
-      `Motivo: ${pegar('motivo')}`
-    )
   }
 
-  let altura = 40
-
-  linhas.forEach(linha => {
-    doc.text(linha, 20, altura)
-    altura += 10
-  })
-
-  doc.save(
-    `transferencia-${pegar('vigilante') || 'vigilante'}.pdf`
-  )
-}
-
-function enviarWhatsapp() {
-  const obrigatorios = [
-    'vigilante',
-    'empresaVigilante',
-    'escala',
-    'posto',
-    'horario',
-    'turno',
-    'transferencia',
-    'substitui'
-  ]
-
-  if (pegar('substitui') === 'Sim') {
-    obrigatorios.push(
-      'substituido',
-      'empresaSubstituido',
-      'desde',
-      'novoPosto',
-      'motivo'
-    )
+  function atualizarPreview() {
+    document.getElementById('preview').innerText =
+      gerarMensagem()
   }
 
-  for (let campo of obrigatorios) {
-    if (!pegar(campo)) {
-      alert('⚠️ Existem campos obrigatórios sem preenchimento.')
-      document.getElementById(campo).focus()
-      return
+  function baixarPDF() {
+    const { jsPDF } = window.jspdf
+    const doc = new jsPDF()
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(18)
+
+    doc.text(
+      'REGISTRO DE TRANSFERÊNCIA DE VIGILANTES',
+      20,
+      20
+    )
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(12)
+
+    const linhas = [
+      `Vigilante: ${pegar('vigilante')}`,
+      `Empresa: ${pegar('empresaVigilante')}`,
+      `Escala: ${pegar('escala')}`,
+      `Posto: ${pegar('posto')}`,
+      `Horário: ${pegar('horario')}`,
+      `Turno: ${pegar('turno')}`,
+      `Data da transferência: ${pegar('transferencia')}`,
+      '',
+      `Vai substituir alguém?: ${pegar('substitui')}`
+    ]
+
+    if (pegar('substitui') === 'Sim') {
+      linhas.push(
+        `Substituindo: ${pegar('substituido')}`,
+        `Empresa do substituído: ${pegar('empresaSubstituido')}`,
+        `Desde: ${pegar('desde')}`,
+        `Novo posto: ${pegar('novoPosto')}`,
+        `Motivo: ${pegar('motivo')}`
+      )
     }
+
+    let altura = 40
+
+    linhas.forEach((linha) => {
+      doc.text(linha, 20, altura)
+      altura += 10
+    })
+
+    doc.save(
+      `transferencia-${pegar('vigilante') || 'vigilante'}.pdf`
+    )
   }
 
-  const mensagem = gerarMensagem()
+  function enviarWhatsapp() {
+    const obrigatorios = [
+      'vigilante',
+      'empresaVigilante',
+      'escala',
+      'posto',
+      'horario',
+      'turno',
+      'transferencia',
+      'substitui'
+    ]
 
-  window.open(
-    `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
-    '_blank'
-  )
-}
+    if (pegar('substitui') === 'Sim') {
+      obrigatorios.push(
+        'substituido',
+        'empresaSubstituido',
+        'desde',
+        'novoPosto',
+        'motivo'
+      )
+    }
 
-atualizarSistema()
+    for (const campo of obrigatorios) {
+      if (!pegar(campo)) {
+        alert('⚠️ Existem campos obrigatórios sem preenchimento.')
+        document.getElementById(campo).focus()
+        return
+      }
+    }
+
+    const mensagem = gerarMensagem()
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
+      '_blank'
+    )
+  }
+
+  atualizarSistema()
 </script>
