@@ -1,61 +1,350 @@
-<script>
-  const campos = document.querySelectorAll('input, select')
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Substituição</title>
 
-  campos.forEach((campo) => {
-    campo.addEventListener('input', atualizarSistema)
-    campo.addEventListener('change', atualizarSistema)
-  })
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  function pegar(id) {
-    return document.getElementById(id).value
-  }
-
-  function atualizarSistema() {
-    controlarSubstituicao()
-    validarFormulario()
-    atualizarPreview()
-  }
-
-  function controlarSubstituicao() {
-    const substitui = pegar('substitui')
-    const camposSubstituicao = document.querySelectorAll('.campos-substituicao')
-
-    camposSubstituicao.forEach((campo) => {
-      campo.style.display =
-        substitui === 'Não' ? 'none' : 'flex'
-    })
-  }
-
-  function validarFormulario() {
-    const obrigatorios = [
-      'vigilante',
-      'empresaVigilante',
-      'escala',
-      'posto',
-      'horario',
-      'turno',
-      'transferencia',
-      'substitui'
-    ]
-
-    if (pegar('substitui') === 'Sim') {
-      obrigatorios.push(
-        'substituido',
-        'empresaSubstituido',
-        'desde',
-        'novoPosto',
-        'motivo'
-      )
+  <style>
+    html {
+      overflow-x: hidden;
     }
 
-    const completo = obrigatorios.every((campo) => pegar(campo))
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-    document.getElementById('botaoPDF').style.display =
-      completo ? 'inline-block' : 'none'
-  }
+    body {
+      background: #d1d5db;
+      padding: 15px;
+    }
 
-  function gerarMensagem() {
-    return `🚨 NOVA SUBSTITUIÇÃO 🚨
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 1px solid #9ca3af;
+    }
+
+    h1 {
+      text-align: center;
+      color: #166534;
+      margin-bottom: 10px;
+    }
+
+    .descricao {
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+
+    .formulario {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #9ca3af;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #15803d;
+    }
+
+    .botoes {
+      margin-top: 25px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .salvar {
+      background: #166534;
+      color: white;
+    }
+
+    .salvar:hover {
+      background: #14532d;
+    }
+
+    .limpar {
+      background: #9ca3af;
+      color: black;
+    }
+
+    .preview {
+      overflow-wrap: break-word;
+      margin-top: 30px;
+      background: #f3f4f6;
+      border: 1px solid #bbf7d0;
+      border-radius: 20px;
+      padding: 20px;
+      white-space: pre-line;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .container {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      body {
+        padding: 10px;
+      }
+
+      .botoes {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Controle de Substituição de Vigilantes</h1>
+
+    <p class="descricao">
+      Registro de movimentação, substituição e transferência de vigilantes.
+    </p>
+
+    <div class="formulario">
+
+      <div class="campo">
+        <label>Nome do Vigilante</label>
+        <input type="text" id="vigilante" />
+      </div>
+
+      <div class="campo">
+        <label>Empresa do Vigilante</label>
+        <select id="empresaVigilante">
+          <option value="">Selecione</option>
+          <option>SERVNAC 01</option>
+          <option>SERVNAC SP</option>
+          <option>SERVNAC RN</option>
+          <option>VERDE SEGURANÇA</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Escala</label>
+        <select id="escala">
+          <option value="">Selecione</option>
+          <option>12x36 PAR</option>
+          <option>12x36 ÍMPAR</option>
+          <option>6x1</option>
+          <option>5x2</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Nome do Posto</label>
+        <input type="text" id="posto" />
+      </div>
+
+      <div class="campo">
+        <label>Horário</label>
+        <input type="text" id="horario" />
+      </div>
+
+      <div class="campo">
+        <label>Turno</label>
+        <select id="turno">
+          <option value="">Selecione</option>
+          <option>Diurno</option>
+          <option>Noturno</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Data da Transferência</label>
+        <input type="date" id="transferencia" />
+      </div>
+
+      <div class="campo">
+        <label>Vai substituir alguém?</label>
+        <select id="substitui">
+          <option value="">Selecione</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Quem será substituído</label>
+        <input type="text" id="substituido" />
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Empresa do Vigilante Substituído</label>
+        <select id="empresaSubstituido">
+          <option value="">Selecione</option>
+          <option>SERVNAC 01</option>
+          <option>SERVNAC SP</option>
+          <option>SERVNAC RN</option>
+          <option>VERDE SEGURANÇA</option>
+        </select>
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Desde quando</label>
+        <input type="date" id="desde" />
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Novo Posto do Vigilante Substituído</label>
+        <input type="text" id="novoPosto" />
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Motivo</label>
+        <input
+          type="text"
+          id="motivo"
+          placeholder="Informe o motivo da transferência"
+        />
+      </div>
+
+    </div>
+
+    <div class="botoes">
+
+      <button class="salvar" onclick="enviarWhatsapp()">
+        Salvar e Enviar no WhatsApp
+      </button>
+
+      <button
+        class="salvar"
+        id="botaoPDF"
+        style="display: none;"
+        onclick="baixarPDF()"
+      >
+        Baixar PDF
+      </button>
+
+      <button class="limpar" onclick="location.reload()">
+        Limpar Campos
+      </button>
+
+    </div>
+
+    <div class="preview" id="preview"></div>
+
+  </div>
+
+  <script>
+
+    const campos = document.querySelectorAll('input, select')
+
+    campos.forEach((campo) => {
+      campo.addEventListener('input', atualizarSistema)
+      campo.addEventListener('change', atualizarSistema)
+    })
+
+    function pegar(id) {
+      return document.getElementById(id).value
+    }
+
+    function atualizarSistema() {
+      controlarSubstituicao()
+      validarFormulario()
+      atualizarPreview()
+    }
+
+    function controlarSubstituicao() {
+      const substitui = pegar('substitui')
+
+      const camposSubstituicao =
+        document.querySelectorAll('.campos-substituicao')
+
+      camposSubstituicao.forEach((campo) => {
+        campo.style.display =
+          substitui === 'Não'
+            ? 'none'
+            : 'flex'
+      })
+    }
+
+    function validarFormulario() {
+
+      const obrigatorios = [
+        'vigilante',
+        'empresaVigilante',
+        'escala',
+        'posto',
+        'horario',
+        'turno',
+        'transferencia',
+        'substitui'
+      ]
+
+      if (pegar('substitui') === 'Sim') {
+
+        obrigatorios.push(
+          'substituido',
+          'empresaSubstituido',
+          'desde',
+          'novoPosto',
+          'motivo'
+        )
+      }
+
+      const completo =
+        obrigatorios.every((campo) => pegar(campo))
+
+      document.getElementById('botaoPDF').style.display =
+        completo
+          ? 'inline-block'
+          : 'none'
+    }
+
+    function gerarMensagem() {
+
+      let mensagem = `🚨 NOVA SUBSTITUIÇÃO 🚨
 
 👤 Vigilante: ${pegar('vigilante')}
 🏢 Empresa: ${pegar('empresaVigilante')}
@@ -66,109 +355,136 @@
 🚚 Data da transferência: ${pegar('transferencia')}
 
 🔄 Vai substituir alguém? ${pegar('substitui')}
+`
+
+      if (pegar('substitui') === 'Sim') {
+
+        mensagem += `
 👥 Substituindo: ${pegar('substituido')}
 🏢 Empresa do substituído: ${pegar('empresaSubstituido')}
 📅 Desde: ${pegar('desde')}
-
 📌 Novo posto do substituído: ${pegar('novoPosto')}
 📝 Motivo: ${pegar('motivo')}
+`
+      }
+
+      mensagem += `
 
 🔗 Para realizar uma nova transferência, acesse o link:
-https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/`
-  }
+https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
+`
 
-  function atualizarPreview() {
-    document.getElementById('preview').innerText =
-      gerarMensagem()
-  }
-
-  function baixarPDF() {
-    const { jsPDF } = window.jspdf
-    const doc = new jsPDF()
-
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(18)
-
-    doc.text(
-      'REGISTRO DE TRANSFERÊNCIA DE VIGILANTES',
-      20,
-      20
-    )
-
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(12)
-
-    const linhas = [
-      `Vigilante: ${pegar('vigilante')}`,
-      `Empresa: ${pegar('empresaVigilante')}`,
-      `Escala: ${pegar('escala')}`,
-      `Posto: ${pegar('posto')}`,
-      `Horário: ${pegar('horario')}`,
-      `Turno: ${pegar('turno')}`,
-      `Data da transferência: ${pegar('transferencia')}`,
-      '',
-      `Vai substituir alguém?: ${pegar('substitui')}`
-    ]
-
-    if (pegar('substitui') === 'Sim') {
-      linhas.push(
-        `Substituindo: ${pegar('substituido')}`,
-        `Empresa do substituído: ${pegar('empresaSubstituido')}`,
-        `Desde: ${pegar('desde')}`,
-        `Novo posto: ${pegar('novoPosto')}`,
-        `Motivo: ${pegar('motivo')}`
-      )
+      return mensagem
     }
 
-    let altura = 40
-
-    linhas.forEach((linha) => {
-      doc.text(linha, 20, altura)
-      altura += 10
-    })
-
-    doc.save(
-      `transferencia-${pegar('vigilante') || 'vigilante'}.pdf`
-    )
-  }
-
-  function enviarWhatsapp() {
-    const obrigatorios = [
-      'vigilante',
-      'empresaVigilante',
-      'escala',
-      'posto',
-      'horario',
-      'turno',
-      'transferencia',
-      'substitui'
-    ]
-
-    if (pegar('substitui') === 'Sim') {
-      obrigatorios.push(
-        'substituido',
-        'empresaSubstituido',
-        'desde',
-        'novoPosto',
-        'motivo'
-      )
+    function atualizarPreview() {
+      document.getElementById('preview').innerText =
+        gerarMensagem()
     }
 
-    for (const campo of obrigatorios) {
-      if (!pegar(campo)) {
-        alert('⚠️ Existem campos obrigatórios sem preenchimento.')
-        document.getElementById(campo).focus()
-        return
+    function baixarPDF() {
+
+      const { jsPDF } = window.jspdf
+
+      const doc = new jsPDF()
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(18)
+
+      doc.text(
+        'REGISTRO DE TRANSFERÊNCIA DE VIGILANTES',
+        20,
+        20
+      )
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(12)
+
+      const linhas = [
+
+        `Vigilante: ${pegar('vigilante')}`,
+        `Empresa: ${pegar('empresaVigilante')}`,
+        `Escala: ${pegar('escala')}`,
+        `Posto: ${pegar('posto')}`,
+        `Horário: ${pegar('horario')}`,
+        `Turno: ${pegar('turno')}`,
+        `Data da transferência: ${pegar('transferencia')}`,
+        '',
+        `Vai substituir alguém?: ${pegar('substitui')}`
+      ]
+
+      if (pegar('substitui') === 'Sim') {
+
+        linhas.push(
+          `Substituindo: ${pegar('substituido')}`,
+          `Empresa do substituído: ${pegar('empresaSubstituido')}`,
+          `Desde: ${pegar('desde')}`,
+          `Novo posto: ${pegar('novoPosto')}`,
+          `Motivo: ${pegar('motivo')}`
+        )
       }
+
+      let altura = 40
+
+      linhas.forEach((linha) => {
+        doc.text(linha, 20, altura)
+        altura += 10
+      })
+
+      doc.save(
+        `transferencia-${pegar('vigilante') || 'vigilante'}.pdf`
+      )
     }
 
-    const mensagem = gerarMensagem()
+    function enviarWhatsapp() {
 
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
-      '_blank'
-    )
-  }
+      const obrigatorios = [
+        'vigilante',
+        'empresaVigilante',
+        'escala',
+        'posto',
+        'horario',
+        'turno',
+        'transferencia',
+        'substitui'
+      ]
 
-  atualizarSistema()
-</script>
+      if (pegar('substitui') === 'Sim') {
+
+        obrigatorios.push(
+          'substituido',
+          'empresaSubstituido',
+          'desde',
+          'novoPosto',
+          'motivo'
+        )
+      }
+
+      for (const campo of obrigatorios) {
+
+        if (!pegar(campo)) {
+
+          alert(
+            '⚠️ Existem campos obrigatórios sem preenchimento.'
+          )
+
+          document.getElementById(campo).focus()
+
+          return
+        }
+      }
+
+      const mensagem = gerarMensagem()
+
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
+        '_blank'
+      )
+    }
+
+    atualizarSistema()
+
+  </script>
+
+</body>
+</html>
