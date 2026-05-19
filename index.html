@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Controle de Substituição</title>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     html {
       overflow-x: hidden;
@@ -243,6 +245,10 @@
         Salvar e Enviar no WhatsApp
       </button>
 
+      <button class="salvar" onclick="baixarPDF()">
+        Baixar PDF
+      </button>
+
       <button class="limpar" onclick="location.reload()">
         Limpar Campos
       </button>
@@ -300,6 +306,49 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/`
 
     function atualizarPreview() {
       document.getElementById('preview').innerText = gerarMensagem()
+    }
+
+    function baixarPDF() {
+      const { jsPDF } = window.jspdf
+      const doc = new jsPDF()
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(18)
+      doc.text('REGISTRO DE TRANSFERÊNCIA DE VIGILANTES', 20, 20)
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(12)
+
+      const linhas = [
+        `Vigilante: ${pegar('vigilante')}`,
+        `Empresa: ${pegar('empresaVigilante')}`,
+        `Escala: ${pegar('escala')}`,
+        `Posto: ${pegar('posto')}`,
+        `Horário: ${pegar('horario')}`,
+        `Turno: ${pegar('turno')}`,
+        '',
+        `Vai substituir alguém?: ${pegar('substitui')}`,
+      ]
+
+      if (pegar('substitui') === 'Sim') {
+        linhas.push(
+          `Substituindo: ${pegar('substituido')}`,
+          `Empresa do substituído: ${pegar('empresaSubstituido')}`,
+          `Desde: ${pegar('desde')}`,
+          `Novo posto: ${pegar('novoPosto')}`,
+          `Motivo: ${pegar('motivo')}`,
+          `Data da transferência: ${pegar('transferencia')}`
+        )
+      }
+
+      let altura = 40
+
+      linhas.forEach(linha => {
+        doc.text(linha, 20, altura)
+        altura += 10
+      })
+
+      doc.save(`transferencia-${pegar('vigilante') || 'vigilante'}.pdf`)
     }
 
     function enviarWhatsapp() {
