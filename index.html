@@ -276,6 +276,12 @@
 
       campo.addEventListener('change', () => {
         controlarSubstituicao()
+        atualizarPreview()
+      })
+    })
+
+      campo.addEventListener('change', () => {
+        controlarSubstituicao()
         controlarSubstituicao()
     atualizarPreview()
       })
@@ -319,7 +325,7 @@
       document.getElementById('botaoPDF').style.display = completo
         ? 'inline-block'
         : 'none'
-    }
+    })
     }
 
     function pegar(id) {
