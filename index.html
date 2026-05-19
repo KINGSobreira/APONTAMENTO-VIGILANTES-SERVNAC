@@ -206,7 +206,9 @@
         <label>Vai substituir alguém?</label>
         <select id="substitui">
           <option value="">Selecione</option>
-          <option value="Sim">Sim</option>alue="Não"><option value="Não">Não</option>t>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
       </div>
 
       <div class="campo campos-substituicao">
@@ -268,6 +270,11 @@
 
     campos.forEach(campo => {
       campo.addEventListener('input', () => {
+        controlarSubstituicao()
+        atualizarPreview()
+      })
+
+      campo.addEventListener('change', () => {
         controlarSubstituicao()
         controlarSubstituicao()
     atualizarPreview()
