@@ -303,6 +303,37 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/`
     }
 
     function enviarWhatsapp() {
+      const obrigatorios = [
+        'vigilante',
+        'empresaVigilante',
+        'escala',
+        'posto',
+        'horario',
+        'turno',
+        'substitui'
+      ]
+
+      const substitui = pegar('substitui')
+
+      if (substitui === 'Sim') {
+        obrigatorios.push(
+          'substituido',
+          'empresaSubstituido',
+          'desde',
+          'novoPosto',
+          'transferencia',
+          'motivo'
+        )
+      }
+
+      for (let campo of obrigatorios) {
+        if (!pegar(campo)) {
+          alert('⚠️ Existem campos obrigatórios sem preenchimento.')
+          document.getElementById(campo).focus()
+          return
+        }
+      }
+
       const mensagem = gerarMensagem()
 
       window.open(
