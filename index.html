@@ -169,7 +169,13 @@
 
       <div class="campo">
         <label>Escala</label>
-        <input type="text" id="escala" />
+        <select id="escala">
+          <option value="">Selecione</option>
+          <option>12x36 PAR</option>
+          <option>12x36 ÍMPAR</option>
+          <option>6x1</option>
+          <option>5x2</option>
+        </select>
       </div>
 
       <div class="campo">
@@ -189,6 +195,11 @@
           <option>Diurno</option>
           <option>Noturno</option>
         </select>
+      </div>
+
+      <div class="campo">
+        <label>Data da Transferência</label>
+        <input type="date" id="transferencia" />
       </div>
 
       <div class="campo">
@@ -228,10 +239,7 @@
 
       
 
-      <div class="campo campos-substituicao">
-        <label>Data da Transferência</label>
-        <input type="date" id="transferencia" />
-      </div>
+      
 
       <div class="campo campos-substituicao" style="margin-top: 10px;">
         <label>Motivo</label>
@@ -245,7 +253,7 @@
         Salvar e Enviar no WhatsApp
       </button>
 
-      <button class="salvar" onclick="baixarPDF()">
+      <button class="salvar" id="botaoPDF" style="display: none;" onclick="baixarPDF()">
         Baixar PDF
       </button>
 
@@ -275,6 +283,38 @@
       campos.forEach(campo => {
         campo.style.display = substitui === 'Não' ? 'none' : 'flex'
       })
+
+      validarFormulario()
+    }
+
+    function validarFormulario() {
+      const obrigatorios = [
+        'vigilante',
+        'empresaVigilante',
+        'escala',
+        'posto',
+        'horario',
+        'turno',
+        'substitui'
+      ]
+
+      if (pegar('substitui') === 'Sim') {
+        obrigatorios.push(
+          'substituido',
+          'empresaSubstituido',
+          'desde',
+          'novoPosto',
+          'transferencia',
+          'motivo'
+        )
+      }
+
+      const completo = obrigatorios.every(campo => pegar(campo))
+
+      document.getElementById('botaoPDF').style.display = completo
+        ? 'inline-block'
+        : 'none'
+    })
     }
 
     function pegar(id) {
