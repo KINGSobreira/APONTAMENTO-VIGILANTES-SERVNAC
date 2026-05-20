@@ -26,7 +26,7 @@
 
     .container {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1200px;
       margin: auto;
       background: white;
       border-radius: 20px;
@@ -120,6 +120,7 @@
     }
 
     @media (max-width: 768px) {
+
       h1 {
         font-size: 28px;
       }
@@ -146,6 +147,7 @@
 <body>
 
   <div class="container">
+
     <h1>Controle de Substituição de Vigilantes</h1>
 
     <p class="descricao">
@@ -154,6 +156,8 @@
 
     <div class="formulario">
 
+      <!-- VIGILANTE -->
+
       <div class="campo">
         <label>Nome do Vigilante</label>
         <input type="text" id="vigilante" />
@@ -161,6 +165,7 @@
 
       <div class="campo">
         <label>Empresa do Vigilante</label>
+
         <select id="empresaVigilante">
           <option value="">Selecione</option>
           <option>SERVNAC 01</option>
@@ -172,6 +177,7 @@
 
       <div class="campo">
         <label>Escala</label>
+
         <select id="escala">
           <option value="">Selecione</option>
           <option>12x36 PAR</option>
@@ -193,6 +199,7 @@
 
       <div class="campo">
         <label>Turno</label>
+
         <select id="turno">
           <option value="">Selecione</option>
           <option>Diurno</option>
@@ -207,12 +214,15 @@
 
       <div class="campo">
         <label>Vai substituir alguém?</label>
+
         <select id="substitui">
           <option value="">Selecione</option>
           <option value="Sim">Sim</option>
           <option value="Não">Não</option>
         </select>
       </div>
+
+      <!-- SUBSTITUÍDO -->
 
       <div class="campo campos-substituicao">
         <label>Quem será substituído</label>
@@ -221,6 +231,7 @@
 
       <div class="campo campos-substituicao">
         <label>Empresa do Vigilante Substituído</label>
+
         <select id="empresaSubstituido">
           <option value="">Selecione</option>
           <option>SERVNAC 01</option>
@@ -230,18 +241,46 @@
         </select>
       </div>
 
-     <div class="campo campos-substituicao">
-  <label>Novo Posto do Vigilante Substituído</label>
-  <input type="text" id="novoPosto" />
-</div>
+      <div class="campo campos-substituicao">
+        <label>Escala do Vigilante Substituído</label>
 
-<div class="campo campos-substituicao">
-  <label>Desde quando</label>
-  <input type="date" id="desde" />
-</div>
+        <select id="escalaSubstituido">
+          <option value="">Selecione</option>
+          <option>12x36 PAR</option>
+          <option>12x36 ÍMPAR</option>
+          <option>6x1</option>
+          <option>5x2</option>
+        </select>
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Horário do Vigilante Substituído</label>
+        <input type="text" id="horarioSubstituido" />
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Turno do Vigilante Substituído</label>
+
+        <select id="turnoSubstituido">
+          <option value="">Selecione</option>
+          <option>Diurno</option>
+          <option>Noturno</option>
+        </select>
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Novo Posto do Vigilante Substituído</label>
+        <input type="text" id="novoPosto" />
+      </div>
+
+      <div class="campo campos-substituicao">
+        <label>Desde quando</label>
+        <input type="date" id="desde" />
+      </div>
 
       <div class="campo campos-substituicao">
         <label>Motivo</label>
+
         <input
           type="text"
           id="motivo"
@@ -296,12 +335,14 @@
     }
 
     function controlarSubstituicao() {
+
       const substitui = pegar('substitui')
 
       const camposSubstituicao =
         document.querySelectorAll('.campos-substituicao')
 
       camposSubstituicao.forEach((campo) => {
+
         campo.style.display =
           substitui === 'Não'
             ? 'none'
@@ -327,8 +368,11 @@
         obrigatorios.push(
           'substituido',
           'empresaSubstituido',
-          'desde',
+          'escalaSubstituido',
+          'horarioSubstituido',
+          'turnoSubstituido',
           'novoPosto',
+          'desde',
           'motivo'
         )
       }
@@ -362,8 +406,11 @@
         mensagem += `
 👥 Substituindo: ${pegar('substituido')}
 🏢 Empresa do substituído: ${pegar('empresaSubstituido')}
-📅 Desde: ${pegar('desde')}
+📋 Escala do substituído: ${pegar('escalaSubstituido')}
+🕒 Horário do substituído: ${pegar('horarioSubstituido')}
+🌙 Turno do substituído: ${pegar('turnoSubstituido')}
 📌 Novo posto do substituído: ${pegar('novoPosto')}
+📅 Desde: ${pegar('desde')}
 📝 Motivo: ${pegar('motivo')}
 `
       }
@@ -378,6 +425,7 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
     }
 
     function atualizarPreview() {
+
       document.getElementById('preview').innerText =
         gerarMensagem()
     }
@@ -418,8 +466,11 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
         linhas.push(
           `Substituindo: ${pegar('substituido')}`,
           `Empresa do substituído: ${pegar('empresaSubstituido')}`,
-          `Desde: ${pegar('desde')}`,
+          `Escala do substituído: ${pegar('escalaSubstituido')}`,
+          `Horário do substituído: ${pegar('horarioSubstituido')}`,
+          `Turno do substituído: ${pegar('turnoSubstituido')}`,
           `Novo posto: ${pegar('novoPosto')}`,
+          `Desde: ${pegar('desde')}`,
           `Motivo: ${pegar('motivo')}`
         )
       }
@@ -427,6 +478,7 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
       let altura = 40
 
       linhas.forEach((linha) => {
+
         doc.text(linha, 20, altura)
         altura += 10
       })
@@ -454,8 +506,11 @@ https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
         obrigatorios.push(
           'substituido',
           'empresaSubstituido',
-          'desde',
+          'escalaSubstituido',
+          'horarioSubstituido',
+          'turnoSubstituido',
           'novoPosto',
+          'desde',
           'motivo'
         )
       }
