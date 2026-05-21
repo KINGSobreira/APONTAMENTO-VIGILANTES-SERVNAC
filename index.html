@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Controle de Substituição</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
 
   <style>
     html {
@@ -31,7 +36,7 @@
       background: white;
       border-radius: 20px;
       padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       border: 1px solid #9ca3af;
     }
 
@@ -53,12 +58,79 @@
       gap: 15px;
     }
 
+    fieldset.substituicao-bloco {
+      grid-column: 1 / -1;
+      border: 1px solid #bbf7d0;
+      border-radius: 16px;
+      padding: 18px 16px 8px;
+      margin: 0;
+      background: #f9fafb;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 0;
+      pointer-events: none;
+      transition:
+        max-height 0.45s ease,
+        opacity 0.3s ease,
+        padding 0.35s ease,
+        border-width 0.2s ease;
+    }
+
+    fieldset.substituicao-bloco.visivel {
+      max-height: 2000px;
+      opacity: 1;
+      padding: 18px 16px 8px;
+      border-width: 1px;
+      pointer-events: auto;
+    }
+
+    fieldset.substituicao-bloco legend {
+      font-weight: bold;
+      color: #166534;
+      padding: 0 8px;
+      width: 100%;
+    }
+
     .campo {
       display: flex;
       flex-direction: column;
     }
 
-    label {
+    .horario-expediente {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .horario-expediente .subcampo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .horario-expediente .subcampo label {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .campo.erro input,
+    .campo.erro select {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+    }
+
+    .campo.erro label {
+      color: #b91c1c;
+    }
+
+    label,
+    .campo > span[id^="label"] {
       margin-bottom: 5px;
       font-weight: bold;
       color: #374151;
@@ -71,11 +143,19 @@
       border-radius: 12px;
       border: 1px solid #9ca3af;
       outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input:focus,
     select:focus {
       border-color: #15803d;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible {
+      outline: 2px solid #15803d;
+      outline-offset: 2px;
     }
 
     .botoes {
@@ -91,7 +171,17 @@
       border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
-      transition: 0.3s;
+      transition: background 0.3s, transform 0.2s, opacity 0.2s;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button:not(:disabled):active {
+      transform: scale(0.98);
     }
 
     .salvar {
@@ -99,13 +189,88 @@
       color: white;
     }
 
-    .salvar:hover {
+    .salvar:not(:disabled):hover {
       background: #14532d;
     }
 
     .limpar {
       background: #9ca3af;
       color: black;
+    }
+
+    .limpar:not(:disabled):hover {
+      background: #6b7280;
+      color: white;
+    }
+
+    .copiar {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .copiar:not(:disabled):hover {
+      background: #1e40af;
+    }
+
+    #botaoPDF {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      max-width: 0;
+      padding-left: 0;
+      padding-right: 0;
+      overflow: hidden;
+    }
+
+    #botaoPDF.visivel {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      max-width: none;
+      padding: 14px 20px;
+    }
+
+    .mensagem-erro {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      font-weight: bold;
+    }
+
+    .mensagem-erro.visivel {
+      display: block;
+      animation: erroEntrada 0.3s ease;
+    }
+
+    .mensagem-sucesso {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-weight: bold;
+    }
+
+    .mensagem-sucesso.visivel {
+      display: block;
+      animation: erroEntrada 0.3s ease;
+    }
+
+    @keyframes erroEntrada {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .preview {
@@ -117,10 +282,23 @@
       padding: 20px;
       white-space: pre-line;
       line-height: 1.7;
+      transition: background 0.3s ease;
+    }
+
+    .preview.atualizando {
+      animation: previewPulse 0.4s ease;
+    }
+
+    @keyframes previewPulse {
+      0% {
+        background: #ecfdf5;
+      }
+      100% {
+        background: #f3f4f6;
+      }
     }
 
     @media (max-width: 768px) {
-
       h1 {
         font-size: 28px;
       }
@@ -141,276 +319,391 @@
       button {
         width: 100%;
       }
+
+      #botaoPDF.visivel {
+        max-width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-
     <h1>Controle de Substituição de Vigilantes</h1>
 
     <p class="descricao">
       Registro de movimentação, substituição e transferência de vigilantes.
     </p>
 
-    <div class="formulario">
+    <form id="formulario" novalidate>
+      <div class="formulario">
+        <div class="campo">
+          <label for="vigilante">Nome do Vigilante</label>
+          <input type="text" id="vigilante" name="vigilante" autocomplete="name" required />
+        </div>
 
-      <!-- VIGILANTE -->
+        <div class="campo">
+          <label for="empresaVigilante">Empresa do Vigilante</label>
+          <select id="empresaVigilante" name="empresaVigilante" required>
+            <option value="">Selecione</option>
+          </select>
+        </div>
 
-      <div class="campo">
-        <label>Nome do Vigilante</label>
-        <input type="text" id="vigilante" />
+        <div class="campo">
+          <label for="escala">Escala</label>
+          <select id="escala" name="escala" required>
+            <option value="">Selecione</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="posto">Nome do Posto</label>
+          <input type="text" id="posto" name="posto" required />
+        </div>
+
+        <div class="campo">
+          <span id="labelHorarioVigilante">Horário do expediente</span>
+          <div class="horario-expediente" role="group" aria-labelledby="labelHorarioVigilante">
+            <div class="subcampo">
+              <label for="horarioInicio">Início</label>
+              <input type="time" id="horarioInicio" name="horarioInicio" required />
+            </div>
+            <div class="subcampo">
+              <label for="horarioFim">Fim</label>
+              <input type="time" id="horarioFim" name="horarioFim" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="turno">Turno</label>
+          <select id="turno" name="turno" required>
+            <option value="">Selecione</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="transferencia">Data da Transferência</label>
+          <input type="date" id="transferencia" name="transferencia" required />
+        </div>
+
+        <div class="campo">
+          <label for="substitui">Vai substituir alguém?</label>
+          <select id="substitui" name="substitui" required>
+            <option value="">Selecione</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
+        </div>
+
+        <fieldset id="blocoSubstituicao" class="substituicao-bloco">
+          <legend>Dados do vigilante substituído</legend>
+
+          <div class="campo">
+            <label for="substituido">Quem será substituído</label>
+            <input type="text" id="substituido" name="substituido" />
+          </div>
+
+          <div class="campo">
+            <label for="empresaSubstituido">Empresa do Vigilante Substituído</label>
+            <select id="empresaSubstituido" name="empresaSubstituido">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="escalaSubstituido">Escala do Vigilante Substituído</label>
+            <select id="escalaSubstituido" name="escalaSubstituido">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <span id="labelHorarioSubstituido">Horário do expediente (substituído)</span>
+            <div class="horario-expediente" role="group" aria-labelledby="labelHorarioSubstituido">
+              <div class="subcampo">
+                <label for="horarioSubstituidoInicio">Início</label>
+                <input type="time" id="horarioSubstituidoInicio" name="horarioSubstituidoInicio" />
+              </div>
+              <div class="subcampo">
+                <label for="horarioSubstituidoFim">Fim</label>
+                <input type="time" id="horarioSubstituidoFim" name="horarioSubstituidoFim" />
+              </div>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="turnoSubstituido">Turno do Vigilante Substituído</label>
+            <select id="turnoSubstituido" name="turnoSubstituido">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="novoPosto">Novo Posto do Vigilante Substituído</label>
+            <input type="text" id="novoPosto" name="novoPosto" />
+          </div>
+
+          <div class="campo">
+            <label for="desde">Desde quando</label>
+            <input type="date" id="desde" name="desde" />
+          </div>
+
+          <div class="campo">
+            <label for="motivo">Motivo</label>
+            <input
+              type="text"
+              id="motivo"
+              name="motivo"
+              placeholder="Informe o motivo da transferência"
+            />
+          </div>
+        </fieldset>
       </div>
 
-      <div class="campo">
-        <label>Empresa do Vigilante</label>
+      <div class="botoes">
+        <button type="submit" class="salvar" id="botaoWhatsapp">
+          Salvar e Enviar no WhatsApp
+        </button>
 
-        <select id="empresaVigilante">
-          <option value="">Selecione</option>
-          <option>SERVNAC 01</option>
-          <option>SERVNAC SP</option>
-          <option>SERVNAC RN</option>
-          <option>VERDE SEGURANÇA</option>
-        </select>
+        <button type="button" class="copiar" id="botaoCopiar" disabled>
+          Copiar mensagem
+        </button>
+
+        <button type="button" class="salvar" id="botaoPDF">
+          Baixar PDF
+        </button>
+
+        <button type="button" class="limpar" id="botaoLimpar">
+          Limpar Campos
+        </button>
       </div>
 
-      <div class="campo">
-        <label>Escala</label>
+      <p class="mensagem-erro" id="mensagemErro" role="alert"></p>
+      <p class="mensagem-sucesso" id="mensagemSucesso" role="status"></p>
+    </form>
 
-        <select id="escala">
-          <option value="">Selecione</option>
-          <option>12x36 PAR</option>
-          <option>12x36 ÍMPAR</option>
-          <option>6x1</option>
-          <option>5x2</option>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label>Nome do Posto</label>
-        <input type="text" id="posto" />
-      </div>
-
-      <div class="campo">
-        <label>Horário</label>
-        <input type="text" id="horario" />
-      </div>
-
-      <div class="campo">
-        <label>Turno</label>
-
-        <select id="turno">
-          <option value="">Selecione</option>
-          <option>Diurno</option>
-          <option>Noturno</option>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label>Data da Transferência</label>
-        <input type="date" id="transferencia" />
-      </div>
-
-      <div class="campo">
-        <label>Vai substituir alguém?</label>
-
-        <select id="substitui">
-          <option value="">Selecione</option>
-          <option value="Sim">Sim</option>
-          <option value="Não">Não</option>
-        </select>
-      </div>
-
-      <!-- SUBSTITUÍDO -->
-
-      <div class="campo campos-substituicao">
-        <label>Quem será substituído</label>
-        <input type="text" id="substituido" />
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Empresa do Vigilante Substituído</label>
-
-        <select id="empresaSubstituido">
-          <option value="">Selecione</option>
-          <option>SERVNAC 01</option>
-          <option>SERVNAC SP</option>
-          <option>SERVNAC RN</option>
-          <option>VERDE SEGURANÇA</option>
-        </select>
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Escala do Vigilante Substituído</label>
-
-        <select id="escalaSubstituido">
-          <option value="">Selecione</option>
-          <option>12x36 PAR</option>
-          <option>12x36 ÍMPAR</option>
-          <option>6x1</option>
-          <option>5x2</option>
-        </select>
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Horário do Vigilante Substituído</label>
-        <input type="text" id="horarioSubstituido" />
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Turno do Vigilante Substituído</label>
-
-        <select id="turnoSubstituido">
-          <option value="">Selecione</option>
-          <option>Diurno</option>
-          <option>Noturno</option>
-        </select>
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Novo Posto do Vigilante Substituído</label>
-        <input type="text" id="novoPosto" />
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Desde quando</label>
-        <input type="date" id="desde" />
-      </div>
-
-      <div class="campo campos-substituicao">
-        <label>Motivo</label>
-
-        <input
-          type="text"
-          id="motivo"
-          placeholder="Informe o motivo da transferência"
-        />
-      </div>
-
-    </div>
-
-    <div class="botoes">
-
-      <button class="salvar" onclick="enviarWhatsapp()">
-        Salvar e Enviar no WhatsApp
-      </button>
-
-      <button
-        class="salvar"
-        id="botaoPDF"
-        style="display: none;"
-        onclick="baixarPDF()"
-      >
-        Baixar PDF
-      </button>
-
-      <button class="limpar" onclick="location.reload()">
-        Limpar Campos
-      </button>
-
-    </div>
-
-    <div class="preview" id="preview"></div>
-
+    <div class="preview" id="preview" aria-live="polite" tabindex="-1"></div>
   </div>
 
   <script>
-
-    const campos = document.querySelectorAll('input, select')
-
-    campos.forEach((campo) => {
-      campo.addEventListener('input', atualizarSistema)
-      campo.addEventListener('change', atualizarSistema)
-    })
-
-    function pegar(id) {
-      return document.getElementById(id).value
+    const CONFIG = {
+      empresas: ['SERVNAC 01', 'SERVNAC SP', 'SERVNAC RN', 'VERDE SEGURANÇA'],
+      escalas: ['12x36 PAR', '12x36 ÍMPAR', '6x1', '5x2'],
+      turnos: ['Diurno', 'Noturno'],
+      linkNovaTransferencia:
+        'https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/',
+      storageKey: 'controle-substituicao-vigilantes-rascunho',
     }
 
-    function atualizarSistema() {
-      controlarSubstituicao()
-      validarFormulario()
-      atualizarPreview()
-    }
+    const CAMPOS_SUBSTITUICAO = [
+      'substituido',
+      'empresaSubstituido',
+      'escalaSubstituido',
+      'horarioSubstituidoInicio',
+      'horarioSubstituidoFim',
+      'turnoSubstituido',
+      'novoPosto',
+      'desde',
+      'motivo',
+    ]
 
-    function controlarSubstituicao() {
+    const CAMPOS_BASE = [
+      'vigilante',
+      'empresaVigilante',
+      'escala',
+      'posto',
+      'horarioInicio',
+      'horarioFim',
+      'turno',
+      'transferencia',
+      'substitui',
+    ]
 
-      const substitui = pegar('substitui')
+    const form = document.getElementById('formulario')
+    const preview = document.getElementById('preview')
+    const mensagemErro = document.getElementById('mensagemErro')
+    const mensagemSucesso = document.getElementById('mensagemSucesso')
+    const blocoSubstituicao = document.getElementById('blocoSubstituicao')
+    const botaoPDF = document.getElementById('botaoPDF')
+    const botaoWhatsapp = document.getElementById('botaoWhatsapp')
+    const botaoCopiar = document.getElementById('botaoCopiar')
 
-      const camposSubstituicao =
-        document.querySelectorAll('.campos-substituicao')
+    let salvandoRascunho = false
 
-      camposSubstituicao.forEach((campo) => {
-
-        campo.style.display =
-          substitui === 'Não'
-            ? 'none'
-            : 'flex'
+    function preencherSelect(select, opcoes) {
+      opcoes.forEach((texto) => {
+        const option = document.createElement('option')
+        option.value = texto
+        option.textContent = texto
+        select.appendChild(option)
       })
     }
 
-    function validarFormulario() {
-
-      const obrigatorios = [
-        'vigilante',
-        'empresaVigilante',
-        'escala',
-        'posto',
-        'horario',
-        'turno',
-        'transferencia',
-        'substitui'
+    function inicializarSelects() {
+      const selectsEmpresa = [
+        document.getElementById('empresaVigilante'),
+        document.getElementById('empresaSubstituido'),
+      ]
+      const selectsEscala = [
+        document.getElementById('escala'),
+        document.getElementById('escalaSubstituido'),
+      ]
+      const selectsTurno = [
+        document.getElementById('turno'),
+        document.getElementById('turnoSubstituido'),
       ]
 
-      if (pegar('substitui') === 'Sim') {
+      selectsEmpresa.forEach((select) => preencherSelect(select, CONFIG.empresas))
+      selectsEscala.forEach((select) => preencherSelect(select, CONFIG.escalas))
+      selectsTurno.forEach((select) => preencherSelect(select, CONFIG.turnos))
+    }
 
-        obrigatorios.push(
-          'substituido',
-          'empresaSubstituido',
-          'escalaSubstituido',
-          'horarioSubstituido',
-          'turnoSubstituido',
-          'novoPosto',
-          'desde',
-          'motivo'
-        )
+    function pegar(id) {
+      const elemento = document.getElementById(id)
+      return elemento ? elemento.value.trim() : ''
+    }
+
+    function formatarData(iso) {
+      if (!iso) return ''
+      const [ano, mes, dia] = iso.split('-')
+      if (!ano || !mes || !dia) return iso
+      return `${dia}/${mes}/${ano}`
+    }
+
+    function formatarHorario(valor) {
+      if (!valor) return ''
+      return valor
+    }
+
+    function formatarExpediente(inicioId, fimId) {
+      const inicio = formatarHorario(pegar(inicioId))
+      const fim = formatarHorario(pegar(fimId))
+
+      if (inicio && fim) return `${inicio} às ${fim}`
+      if (inicio) return `início ${inicio}`
+      if (fim) return `fim ${fim}`
+      return ''
+    }
+
+    function camposObrigatorios() {
+      if (pegar('substitui') === 'Sim') {
+        return CAMPOS_BASE.concat(CAMPOS_SUBSTITUICAO)
+      }
+      return CAMPOS_BASE.slice()
+    }
+
+    function formularioCompleto() {
+      return camposObrigatorios().every((id) => pegar(id))
+    }
+
+    function limparErrosVisuais() {
+      document.querySelectorAll('.campo.erro').forEach((campo) => {
+        campo.classList.remove('erro')
+      })
+      mensagemErro.classList.remove('visivel')
+      mensagemErro.textContent = ''
+      mensagemSucesso.classList.remove('visivel')
+      mensagemSucesso.textContent = ''
+    }
+
+    function mostrarSucesso(texto) {
+      mensagemSucesso.textContent = texto
+      mensagemSucesso.classList.add('visivel')
+      mensagemErro.classList.remove('visivel')
+      mensagemErro.textContent = ''
+    }
+
+    function destacarCampo(id) {
+      const elemento = document.getElementById(id)
+      if (!elemento) return
+      const campo = elemento.closest('.campo')
+      if (campo) campo.classList.add('erro')
+      elemento.focus()
+    }
+
+    function validarFormulario(mostrarErro = false) {
+      limparErrosVisuais()
+
+      const obrigatorios = camposObrigatorios()
+
+      for (const id of obrigatorios) {
+        if (!pegar(id)) {
+          if (mostrarErro) {
+            mensagemErro.textContent =
+              'Existem campos obrigatórios sem preenchimento. Verifique os campos destacados.'
+            mensagemErro.classList.add('visivel')
+            destacarCampo(id)
+          }
+          return false
+        }
       }
 
-      const completo =
-        obrigatorios.every((campo) => pegar(campo))
+      return true
+    }
 
-      document.getElementById('botaoPDF').style.display =
-        completo
-          ? 'inline-block'
-          : 'none'
+    function limparCamposSubstituicao() {
+      CAMPOS_SUBSTITUICAO.forEach((id) => {
+        const elemento = document.getElementById(id)
+        if (elemento) elemento.value = ''
+      })
+    }
+
+    function controlarSubstituicao() {
+      const substitui = pegar('substitui')
+      const mostrar = substitui === 'Sim'
+
+      blocoSubstituicao.classList.toggle('visivel', mostrar)
+
+      CAMPOS_SUBSTITUICAO.forEach((id) => {
+        const elemento = document.getElementById(id)
+        if (elemento) elemento.required = mostrar
+      })
+
+      if (substitui === 'Não') {
+        limparCamposSubstituicao()
+      }
+    }
+
+    function atualizarBotoes() {
+      const completo = formularioCompleto()
+      botaoWhatsapp.disabled = !completo
+      botaoCopiar.disabled = !completo
+      botaoPDF.classList.toggle('visivel', completo)
+      botaoPDF.disabled = !completo
     }
 
     function gerarMensagem() {
-
       let mensagem = `🚨 NOVA SUBSTITUIÇÃO 🚨
 
 👤 Vigilante: ${pegar('vigilante')}
 🏢 Empresa: ${pegar('empresaVigilante')}
 📋 Escala: ${pegar('escala')}
 📍 Posto: ${pegar('posto')}
-🕒 Horário: ${pegar('horario')}
+🕒 Expediente: ${formatarExpediente('horarioInicio', 'horarioFim')}
 🌙 Turno: ${pegar('turno')}
-🚚 Data da transferência: ${pegar('transferencia')}
+🚚 Data da transferência: ${formatarData(pegar('transferencia'))}
 
 🔄 Vai substituir alguém? ${pegar('substitui')}
 `
 
       if (pegar('substitui') === 'Sim') {
-
         mensagem += `
 👥 Substituindo: ${pegar('substituido')}
 🏢 Empresa do substituído: ${pegar('empresaSubstituido')}
 📋 Escala do substituído: ${pegar('escalaSubstituido')}
-🕒 Horário do substituído: ${pegar('horarioSubstituido')}
+🕒 Expediente do substituído: ${formatarExpediente('horarioSubstituidoInicio', 'horarioSubstituidoFim')}
 🌙 Turno do substituído: ${pegar('turnoSubstituido')}
 📌 Novo posto do substituído: ${pegar('novoPosto')}
-📅 Desde: ${pegar('desde')}
+📅 Desde: ${formatarData(pegar('desde'))}
 📝 Motivo: ${pegar('motivo')}
 `
       }
@@ -418,128 +711,227 @@
       mensagem += `
 
 🔗 Para realizar uma nova transferência, acesse o link:
-https://kingsobreira.github.io/APONTAMENTO-VIGILANTES-SERVNAC/
+${CONFIG.linkNovaTransferencia}
 `
 
       return mensagem
     }
 
-    function atualizarPreview() {
+    function animarPreview() {
+      preview.classList.remove('atualizando')
+      void preview.offsetWidth
+      preview.classList.add('atualizando')
+      preview.addEventListener(
+        'animationend',
+        () => preview.classList.remove('atualizando'),
+        { once: true }
+      )
+    }
 
-      document.getElementById('preview').innerText =
-        gerarMensagem()
+    function atualizarPreview() {
+      preview.textContent = gerarMensagem()
+      animarPreview()
+    }
+
+    function salvarRascunho() {
+      if (salvandoRascunho) return
+
+      const dados = {}
+      form.querySelectorAll('input, select').forEach((campo) => {
+        if (campo.name) dados[campo.name] = campo.value
+      })
+
+      try {
+        localStorage.setItem(CONFIG.storageKey, JSON.stringify(dados))
+      } catch (_) {
+        /* armazenamento indisponível */
+      }
+    }
+
+    function carregarRascunho() {
+      try {
+        const salvo = localStorage.getItem(CONFIG.storageKey)
+        if (!salvo) return
+
+        const dados = JSON.parse(salvo)
+
+        if (dados.horario && !dados.horarioInicio) {
+          dados.horarioInicio = dados.horario
+        }
+
+        if (dados.horarioSubstituido && !dados.horarioSubstituidoInicio) {
+          dados.horarioSubstituidoInicio = dados.horarioSubstituido
+        }
+
+        salvandoRascunho = true
+
+        Object.entries(dados).forEach(([nome, valor]) => {
+          const campo = form.elements[nome]
+          if (campo) campo.value = valor
+        })
+      } catch (_) {
+        /* rascunho inválido */
+      } finally {
+        salvandoRascunho = false
+      }
+    }
+
+    function limparRascunho() {
+      try {
+        localStorage.removeItem(CONFIG.storageKey)
+      } catch (_) {
+        /* ignorar */
+      }
+    }
+
+    function atualizarSistema() {
+      controlarSubstituicao()
+      atualizarBotoes()
+      atualizarPreview()
+      salvarRascunho()
     }
 
     function baixarPDF() {
+      if (!validarFormulario(true)) return
+
+      if (!window.jspdf) {
+        mensagemErro.textContent =
+          'Não foi possível carregar a biblioteca de PDF. Verifique sua conexão e tente novamente.'
+        mensagemErro.classList.add('visivel')
+        return
+      }
 
       const { jsPDF } = window.jspdf
-
       const doc = new jsPDF()
 
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(18)
-
-      doc.text(
-        'REGISTRO DE TRANSFERÊNCIA DE VIGILANTES',
-        20,
-        20
-      )
+      doc.text('REGISTRO DE TRANSFERÊNCIA DE VIGILANTES', 20, 20)
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(12)
 
       const linhas = [
-
         `Vigilante: ${pegar('vigilante')}`,
         `Empresa: ${pegar('empresaVigilante')}`,
         `Escala: ${pegar('escala')}`,
         `Posto: ${pegar('posto')}`,
-        `Horário: ${pegar('horario')}`,
+        `Expediente: ${formatarExpediente('horarioInicio', 'horarioFim')}`,
         `Turno: ${pegar('turno')}`,
-        `Data da transferência: ${pegar('transferencia')}`,
+        `Data da transferência: ${formatarData(pegar('transferencia'))}`,
         '',
-        `Vai substituir alguém?: ${pegar('substitui')}`
+        `Vai substituir alguém?: ${pegar('substitui')}`,
       ]
 
       if (pegar('substitui') === 'Sim') {
-
         linhas.push(
           `Substituindo: ${pegar('substituido')}`,
           `Empresa do substituído: ${pegar('empresaSubstituido')}`,
           `Escala do substituído: ${pegar('escalaSubstituido')}`,
-          `Horário do substituído: ${pegar('horarioSubstituido')}`,
+          `Expediente do substituído: ${formatarExpediente('horarioSubstituidoInicio', 'horarioSubstituidoFim')}`,
           `Turno do substituído: ${pegar('turnoSubstituido')}`,
           `Novo posto: ${pegar('novoPosto')}`,
-          `Desde: ${pegar('desde')}`,
+          `Desde: ${formatarData(pegar('desde'))}`,
           `Motivo: ${pegar('motivo')}`
         )
       }
 
       let altura = 40
-
       linhas.forEach((linha) => {
-
         doc.text(linha, 20, altura)
         altura += 10
       })
 
-      doc.save(
-        `transferencia-${pegar('vigilante') || 'vigilante'}.pdf`
+      const nomeArquivo = (pegar('vigilante') || 'vigilante')
+        .replace(/[<>:"/\\|?*]/g, '')
+        .replace(/\s+/g, '-')
+        .toLowerCase()
+
+      doc.save(`transferencia-${nomeArquivo}.pdf`)
+    }
+
+    function enviarWhatsapp(evento) {
+      evento.preventDefault()
+
+      if (!validarFormulario(true)) return
+
+      const mensagem = gerarMensagem()
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
+        '_blank',
+        'noopener,noreferrer'
       )
     }
 
-    function enviarWhatsapp() {
-
-      const obrigatorios = [
-        'vigilante',
-        'empresaVigilante',
-        'escala',
-        'posto',
-        'horario',
-        'turno',
-        'transferencia',
-        'substitui'
-      ]
-
-      if (pegar('substitui') === 'Sim') {
-
-        obrigatorios.push(
-          'substituido',
-          'empresaSubstituido',
-          'escalaSubstituido',
-          'horarioSubstituido',
-          'turnoSubstituido',
-          'novoPosto',
-          'desde',
-          'motivo'
-        )
-      }
-
-      for (const campo of obrigatorios) {
-
-        if (!pegar(campo)) {
-
-          alert(
-            '⚠️ Existem campos obrigatórios sem preenchimento.'
-          )
-
-          document.getElementById(campo).focus()
-
-          return
-        }
-      }
+    async function copiarMensagem() {
+      if (!validarFormulario(true)) return
 
       const mensagem = gerarMensagem()
 
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
-        '_blank'
-      )
+      try {
+        await navigator.clipboard.writeText(mensagem)
+        mostrarSucesso(
+          'Mensagem copiada! Abra o WhatsApp, selecione o grupo e cole para enviar.'
+        )
+        return
+      } catch (_) {
+        /* tenta método alternativo */
+      }
+
+      const area = document.createElement('textarea')
+      area.value = mensagem
+      area.setAttribute('readonly', '')
+      area.style.position = 'fixed'
+      area.style.left = '-9999px'
+      document.body.appendChild(area)
+      area.select()
+
+      let copiou = false
+
+      try {
+        copiou = document.execCommand('copy')
+      } catch (_) {
+        copiou = false
+      }
+
+      document.body.removeChild(area)
+
+      if (copiou) {
+        mostrarSucesso(
+          'Mensagem copiada! Abra o WhatsApp, selecione o grupo e cole para enviar.'
+        )
+        return
+      }
+
+      mensagemErro.textContent =
+        'Não foi possível copiar automaticamente. Selecione o texto da prévia abaixo e copie manualmente.'
+      mensagemErro.classList.add('visivel')
+      mensagemSucesso.classList.remove('visivel')
+      preview.focus()
     }
 
+    function limparFormulario() {
+      form.reset()
+      limparCamposSubstituicao()
+      limparRascunho()
+      limparErrosVisuais()
+      atualizarSistema()
+    }
+
+    inicializarSelects()
+    carregarRascunho()
+
+    form.querySelectorAll('input, select').forEach((campo) => {
+      campo.addEventListener('input', atualizarSistema)
+      campo.addEventListener('change', atualizarSistema)
+    })
+
+    form.addEventListener('submit', enviarWhatsapp)
+    botaoCopiar.addEventListener('click', copiarMensagem)
+    botaoPDF.addEventListener('click', baixarPDF)
+    document.getElementById('botaoLimpar').addEventListener('click', limparFormulario)
+
     atualizarSistema()
-
   </script>
-
 </body>
 </html>
