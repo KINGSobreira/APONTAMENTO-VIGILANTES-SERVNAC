@@ -396,6 +396,16 @@
         </div>
 
         <div class="campo">
+          <label for="observacao">Observação</label>
+          <input
+            type="text"
+            id="observacao"
+            name="observacao"
+            placeholder="Informe uma observação, se necessário"
+          />
+        </div>
+
+        <div class="campo">
           <label for="substitui">Vai substituir alguém?</label>
           <select id="substitui" name="substitui" required>
             <option value="">Selecione</option>
@@ -681,6 +691,12 @@
       botaoPDF.disabled = !completo
     }
 
+    function linhaObservacao() {
+      const texto = pegar('observacao')
+      if (!texto) return ''
+      return `💬 Observação: ${texto}\n`
+    }
+
     function gerarMensagem() {
       let mensagem = `🚨 NOVA SUBSTITUIÇÃO 🚨
 
@@ -691,7 +707,7 @@
 🕒 Expediente: ${formatarExpediente('horarioInicio', 'horarioFim')}
 🌙 Turno: ${pegar('turno')}
 🚚 Data da transferência: ${formatarData(pegar('transferencia'))}
-
+${linhaObservacao()}
 🔄 Vai substituir alguém? ${pegar('substitui')}
 `
 
@@ -819,9 +835,14 @@ ${CONFIG.linkNovaTransferencia}
         `Expediente: ${formatarExpediente('horarioInicio', 'horarioFim')}`,
         `Turno: ${pegar('turno')}`,
         `Data da transferência: ${formatarData(pegar('transferencia'))}`,
-        '',
-        `Vai substituir alguém?: ${pegar('substitui')}`,
       ]
+
+      const observacao = pegar('observacao')
+      if (observacao) {
+        linhas.push(`Observação: ${observacao}`)
+      }
+
+      linhas.push('', `Vai substituir alguém?: ${pegar('substitui')}`)
 
       if (pegar('substitui') === 'Sim') {
         linhas.push(
